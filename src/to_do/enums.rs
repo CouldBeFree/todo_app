@@ -1,8 +1,9 @@
+use serde::ser::{Serialize, Serializer, SerializeStruct};
+
 pub enum TaskStatus {
     DONE,
     PENDING
 }
-
 
 impl TaskStatus {
 
@@ -20,4 +21,13 @@ impl TaskStatus {
             _ => panic!("input {} not supported", input_string)
         }
     }
+}
+
+impl Serialize for TaskStatus {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+        {
+            Ok(serializer.serialize_str(&self.stringify().as_str())?)
+        }
 }
