@@ -4,6 +4,7 @@ use super::super::traits::get::Get;
 use super::super::traits::delete::Delete;
 use super::super::traits::edit::Edit;
 
+#[derive(Debug)]
 pub struct Done {
     pub super_struct: Base
 }
