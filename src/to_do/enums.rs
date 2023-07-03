@@ -1,6 +1,5 @@
 use serde::ser::{Serialize, Serializer, SerializeStruct};
 
-#[derive(Debug)]
 #[derive(Clone)]
 pub enum TaskStatus {
     DONE,

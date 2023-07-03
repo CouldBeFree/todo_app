@@ -1,7 +1,6 @@
 use super::super::enums::TaskStatus;
 use serde::Serialize;
 
-#[derive(Debug)]
 #[derive(Serialize)]
 pub struct Base {
     pub title: String,
