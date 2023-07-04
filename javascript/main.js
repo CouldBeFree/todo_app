@@ -7,12 +7,12 @@ function renderItems(items, processType, elementId, processFunction) {
         let placeholderId = processType +
             "-" + title.replaceAll(" ", "-");
 
-        placeholder += "<div>" + title +
-            "<button " + 'id="' + placeholderId + '">'
-            + processType +
-            '</button>' + "</div>";
+        placeholder += '<div class="itemContainer">' +
+            '<p>' + title + '</p>' +
+            '<div class="actionButton" ' +
+            'id="' + placeholderId + '">'
+            + processType + '</div>' + "</div>";
         itemsMeta.push({"id": placeholderId, "title": title});
-
     }
     placeholder += "</div>"
     document.getElementById(elementId).innerHTML = placeholder;
@@ -21,7 +21,6 @@ function renderItems(items, processType, elementId, processFunction) {
         document.getElementById(itemsMeta[i]["id"]).addEventListener("click", processFunction);
     }
 }
-
 
 function apiCall(url, method) {
     let xhr = new XMLHttpRequest();
@@ -32,6 +31,10 @@ function apiCall(url, method) {
                 "edit", "pendingItems", editItem);
             renderItems(JSON.parse(this.responseText)["done_items"], "delete",
                 "doneItems", deleteItem);
+            document.getElementById("completeNum").innerHTML = JSON.parse(
+                this.responseText)["done_item_count"];
+            document.getElementById("pendingNum").innerHTML = JSON.parse(
+                this.responseText)["pending_item_count"];
         }
     })
     xhr.open(method, url);
@@ -39,7 +42,6 @@ function apiCall(url, method) {
     xhr.setRequestHeader('user-token', 'token');
     return xhr
 }
-
 
 function editItem() {
     let title = this.id.replaceAll("-", " ")
@@ -52,7 +54,6 @@ function editItem() {
     };
     call.send(JSON.stringify(json));
 }
-
 
 function deleteItem() {
     let title = this.id.replaceAll("-", " ")
