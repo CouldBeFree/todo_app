@@ -9,8 +9,6 @@ mod schema;
 mod database;
 mod views;
 mod to_do;
-mod state;
-mod processes;
 mod json_serialization;
 mod jwt;
 mod models;
