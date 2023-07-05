@@ -1,8 +1,6 @@
 pub mod structs;
 pub mod enums;
-pub mod traits;
 
-use std::fmt;
 use enums::TaskStatus;
 use structs::done::Done;
 use structs::pending::Pending;
