@@ -3,7 +3,7 @@ use diesel::prelude::*;
 
 use crate::database::establish_connection;
 use crate::models::item::item::Item;
-use crate::schema::to_do;
+use crate::schema::{to_do_table};
 
 use serde::Serialize;
 use std::vec::Vec;
@@ -52,8 +52,8 @@ impl ToDoItems {
         let connection = establish_connection();
         let mut array_buffer = Vec::new();
 
-        let items = to_do::table
-            .order(to_do::columns::id.asc())
+        let items = to_do_table::table
+            .order(to_do_table::columns::id.asc())
             .load::<Item>(&connection).unwrap();
 
         for item in items {
