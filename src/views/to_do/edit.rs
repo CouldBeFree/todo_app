@@ -9,12 +9,13 @@ use crate::schema::to_do_table;
 use crate::database::DB;
 
 pub async fn edit(to_do_item: web::Json<ToDoItem>, token: JwtToken, db: DB) -> HttpResponse {
-    let results = to_do_table::table
-        .filter(to_do_table::columns::title.eq(&to_do_item.title));
-    
+    let results = to_do_table::table.filter(to_do_table::columns::title
+        .eq(&to_do_item.title))
+        .filter(to_do_table::columns::user_id.eq(&token.user_id));
+
     let _ = diesel::update(results)
         .set(to_do_table::columns::status.eq("DONE"))
         .execute(&db.connection);
-    
-    return HttpResponse::Ok().json(ToDoItems::get_state())
+
+    return HttpResponse::Ok().json(ToDoItems::get_state(token.user_id))
 }

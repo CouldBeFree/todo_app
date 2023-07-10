@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::diesel;
+use crate::json_serialization::login_response::LoginResponse;
 use crate::models::user;
 use diesel::prelude::*;
 use actix_web::{web, HttpResponse, Responder};
@@ -25,7 +26,7 @@ pub async fn login(credentials: web::Json<Login>, db: DB) -> impl Responder {
         return HttpResponse::Conflict()
     }
 
-    match users[0].verify(password) {
+    match users[0].clone().verify(credentials.password.clone()) {
         true => {
             let token = JwtToken::new(users[0].id);
             let raw_token = token.encode();

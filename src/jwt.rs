@@ -13,8 +13,7 @@ use crate::config::Config;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JwtToken {
     pub user_id: i32,
-    #[serde(with = "ts_seconds")]
-    pub minted: DateTime<Utc>
+    pub exp: usize
 }
 
 impl JwtToken {
@@ -35,21 +34,27 @@ impl JwtToken {
     }
 
     pub fn new(user_id: i32) -> Self {
-        let timestamp = Utc::now();
+        let config = Config::new();
+        let minutes = config.map.get("EXPIRE_MINUTES").unwrap().as_i64().unwrap();
+        let expiration = Utc::now()
+                        .checked_add_signed(chrono::Duration::minutes(minutes))
+                        .expect("valid timestamp")
+                        .timestamp();
 
-        return JwtToken { user_id, minted: timestamp }
+        return JwtToken { user_id, exp: expiration as usize }     
     }
 
-    pub fn from_token(token: String) -> Option<Self> {
+    pub fn from_token(token: String) -> Result<Self, String> {
         let key = DecodingKey::from_secret(JwtToken::get_key().as_ref());
-        let token_result = decode::<JwtToken>(&token, &key, &Validation::new(Algorithm::HS256));
+        let token_result = decode::<JwtToken>(&token.as_str(), &key,&Validation::default());
 
         match token_result {
             Ok(data) => {
-                Some(data.claims)
+                return Ok(data.claims)
             },
-            Err(_) => {
-                return None
+            Err(error) => {
+                let message = format!("{}", error);
+                return Err(message)
             }
         }
     }
@@ -66,18 +71,19 @@ impl FromRequest for JwtToken {
                 let token_result = JwtToken::from_token(raw_token);
 
                 match token_result {
-                    Some(token) => {
+                    Ok(token) => {
                         return ok(token)
                     },
-                    None => {
-                        let error = ErrorUnauthorized("Token can't be decoded");
-                        return err(error);
+                    Err(message) => {
+                        if message == "ExpiredSignature".to_owned() {
+                            return err(ErrorUnauthorized("token expired"))
+                        }
+                        return err(ErrorUnauthorized("token can't be decoded"))
                     }
                 }
             },
             None => {
-                let error = ErrorUnauthorized("Token not in header under key 'token'");
-                return err(error);
+                return err(ErrorUnauthorized("token not in header under key 'token'"))
             }
         }
     }

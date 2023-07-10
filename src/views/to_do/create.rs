@@ -10,8 +10,10 @@ use crate::database::establish_connection;
 use crate::models::item::new_item::NewItem;
 use crate::models::item::item::Item;
 use crate::schema::to_do_table;
+use crate::jwt::JwtToken;
+use crate::database::DB;
 
-pub async fn create(req: HttpRequest) -> HttpResponse {
+pub async fn create(token: JwtToken, req: HttpRequest, db: DB) -> HttpResponse {
     let title: String = req.match_info().get("title").unwrap().to_string();
     let connection = establish_connection();
     let items = to_do_table::table
@@ -21,10 +23,10 @@ pub async fn create(req: HttpRequest) -> HttpResponse {
         .unwrap();
 
     if items.len() == 0 {
-        let new_post = NewItem::new(title, 1);
+        let new_post = NewItem::new(title, token.user_id);
         let _ = diesel::insert_into(to_do_table::table).values(&new_post)
             .execute(&connection);
     }
 
-    return HttpResponse::Ok().json(ToDoItems::get_state())
+    return HttpResponse::Ok().json(ToDoItems::get_state(token.user_id));
 }
