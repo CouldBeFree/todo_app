@@ -4,10 +4,9 @@ use actix_web::error::ErrorUnauthorized;
 use futures::future::{Ready, ok, err};
 
 use serde::{Deserialize, Serialize};
-use jsonwebtoken::{encode, decode, Algorithm, Header, EncodingKey, DecodingKey, Validation};
+use jsonwebtoken::{encode, decode, Header, EncodingKey, DecodingKey, Validation};
 
-use chrono::{DateTime, Utc};
-use chrono::serde::ts_seconds;
+use chrono::Utc;
 use crate::config::Config;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -72,6 +71,7 @@ impl FromRequest for JwtToken {
 
                 match token_result {
                     Ok(token) => {
+                        println!("token, {:?}", token);
                         return ok(token)
                     },
                     Err(message) => {

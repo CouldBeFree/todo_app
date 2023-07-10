@@ -4,7 +4,6 @@ use actix_web::{web, HttpResponse};
 
 use crate::json_serialization::{to_do_item::ToDoItem, to_do_items::ToDoItems};
 use crate::jwt::JwtToken;
-use crate::database::establish_connection;
 use crate::schema::to_do_table;
 use crate::database::DB;
 

@@ -1,8 +1,4 @@
-use std::collections::HashMap;
-
 use crate::diesel;
-use crate::json_serialization::login_response::LoginResponse;
-use crate::models::user;
 use diesel::prelude::*;
 use actix_web::{web, HttpResponse, Responder};
 
@@ -13,7 +9,6 @@ use crate::schema::users;
 use crate::jwt::JwtToken;
 
 pub async fn login(credentials: web::Json<Login>, db: DB) -> impl Responder {
-    let password = credentials.password.clone();
 
     let users = users::table
         .filter(users::columns::username.eq(

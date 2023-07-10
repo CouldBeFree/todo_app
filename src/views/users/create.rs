@@ -2,7 +2,6 @@ use crate::diesel;
 use diesel::prelude::*;
 
 use actix_web::{web, HttpResponse, Responder};
-use actix_web::HttpResponseBuilder;
 
 use crate::database::DB;
 use crate::json_serialization::new_user::NewUserSchema;
