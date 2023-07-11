@@ -17,5 +17,6 @@ pub async fn delete(to_do_item: web::Json<ToDoItem>, token: JwtToken, db: DB) ->
         .load::<Item>(&db.connection)
         .unwrap();
     let _ = diesel::delete(&items[0]).execute(&db.connection);
+    
     return HttpResponse::Ok().json(ToDoItems::get_state(token.user_id))
 }

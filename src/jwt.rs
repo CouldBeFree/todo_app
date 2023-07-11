@@ -71,7 +71,6 @@ impl FromRequest for JwtToken {
 
                 match token_result {
                     Ok(token) => {
-                        println!("token, {:?}", token);
                         return ok(token)
                     },
                     Err(message) => {
