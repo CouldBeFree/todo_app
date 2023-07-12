@@ -1,7 +1,7 @@
 #[macro_use] extern crate diesel;
 extern crate dotenv;
 
-use actix_web::{App, HttpServer, HttpResponse};
+use actix_web::{App, HttpServer, HttpResponse, middleware::Logger};
 use actix_service::Service;
 use futures::future::{ok, Either};
 use actix_cors::Cors;
@@ -23,6 +23,8 @@ async fn main() -> std::io::Result<()> {
     let site_counter = counter::Counter{count: 0};
     let _ = site_counter.save();
 
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+
     HttpServer::new(|| {
         let cors = Cors::default().allow_any_origin().allow_any_method().allow_any_header();
         let app = App::new()
@@ -31,7 +33,6 @@ async fn main() -> std::io::Result<()> {
 
                 let mut site_counter = counter::Counter::load().unwrap();
                 site_counter.count += 1;
-                println!("{:?}", &site_counter);
                 let _ = site_counter.save();
 
                 if *&req.path().contains(&format!("/{}/", ALLOWED_VERSION)) {
@@ -57,7 +58,7 @@ async fn main() -> std::io::Result<()> {
                     let result = end_result.await?;
                     Ok(result)
                 }
-            }).configure(views::views_factory).wrap(cors);
+            }).configure(views::views_factory).wrap(cors).wrap(Logger::new("%a %{User-Agent}i %r %s %D"));
         return app
     })
         .bind("127.0.0.1:8000")?
