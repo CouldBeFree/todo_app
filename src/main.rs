@@ -14,17 +14,25 @@ mod json_serialization;
 mod jwt;
 mod models;
 mod config;
+mod counter;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
     const ALLOWED_VERSION: &'static str = include_str!("./output_data.txt");
+    let site_counter = counter::Counter{count: 0};
+    let _ = site_counter.save();
 
     HttpServer::new(|| {
         let cors = Cors::default().allow_any_origin().allow_any_method().allow_any_header();
         let app = App::new()
             .wrap_fn(|req, srv| {
                 let passed: bool;
+
+                let mut site_counter = counter::Counter::load().unwrap();
+                site_counter.count += 1;
+                println!("{:?}", &site_counter);
+                let _ = site_counter.save();
 
                 if *&req.path().contains(&format!("/{}/", ALLOWED_VERSION)) {
                     passed = true;
